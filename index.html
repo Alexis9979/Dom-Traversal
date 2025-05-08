@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOM Traversal Application</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    header {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f0f0f0;
+    }
+
+    .node {
+      padding: 10px;
+      margin: 10px;
+      border: 1px solid black;
+    }
+
+    .grandparent {
+      background-color: #d9f9d9;
+    }
+
+    .parent {
+      background-color: #d9e9f9;
+      margin-left: 20px;
+    }
+
+    .child {
+      background-color: #f9d9d9;
+      margin-left: 40px;
+    }
+
+    .highlight {
+      border: 2px solid red;
+      background-color: yellow !important;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Complete Name:</strong> JOHN ALEXIS BUSILIG<br>
+    <strong>Sex:</strong> Male<br>
+    <strong>Address:</strong> Goa, Camarines Sur<br>
+    <strong>Course, Year, and Section:</strong> BSIT 2A<br>
+    <strong>Name of School:</strong> Partido State University<br>
+    <strong>Semester and Academic Year:</strong> 1st Semester, AY 2024-2025<br>
+    <strong>Subject Code and Title:</strong> PF 2 - Event Driven Programming<br>
+    <strong>Name of Subject Instructor:</strong> Arjay Abio<br>
+  </header>
+
+  <div class="controls">
+    <button onclick="traverseDown()">Traverse Down</button>
+    <button onclick="traverseUp()">Traverse Up</button>
+    <button onclick="traverseNext()">Next Sibling</button>
+    <button onclick="traversePrev()">Previous Sibling</button>
+    <button onclick="addChild()">Add Child</button>
+    <button onclick="deleteNode()">Delete Current</button>
+  </div>
+
+  <div id="tree">
+    <div class="node grandparent">Grandparent
+      <div class="node parent">Parent 1
+        <div class="node child">Child 1</div>
+        <div class="node child">Child 2</div>
+      </div>
+      <div class="node parent">Parent 2
+        <div class="node child">Child 3</div>
+        <div class="node child">Child 4</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedNode = null;
+
+    // Handle node selection
+    document.getElementById("tree").addEventListener("click", function(e) {
+      if (e.target.classList.contains("node")) {
+        if (selectedNode) selectedNode.classList.remove("highlight");
+        selectedNode = e.target;
+        selectedNode.classList.add("highlight");
+        e.stopPropagation();
+      }
+    });
+
+    function traverseDown() {
+      if (!selectedNode) return;
+      const firstChild = Array.from(selectedNode.children).find(c => c.classList.contains("node"));
+      if (firstChild) {
+        selectedNode.classList.remove("highlight");
+        selectedNode = firstChild;
+        selectedNode.classList.add("highlight");
+      }
+    }
+
+    function traverseUp() {
+      if (!selectedNode) return;
+      const parent = selectedNode.parentElement.closest(".node");
+      if (parent) {
+        selectedNode.classList.remove("highlight");
+        selectedNode = parent;
+        selectedNode.classList.add("highlight");
+      }
+    }
+
+    function traverseNext() {
+      if (!selectedNode) return;
+      let sibling = selectedNode.nextElementSibling;
+      while (sibling && !sibling.classList.contains("node")) {
+        sibling = sibling.nextElementSibling;
+      }
+      if (sibling) {
+        selectedNode.classList.remove("highlight");
+        selectedNode = sibling;
+        selectedNode.classList.add("highlight");
+      }
+    }
+
+    function traversePrev() {
+      if (!selectedNode) return;
+      let sibling = selectedNode.previousElementSibling;
+      while (sibling && !sibling.classList.contains("node")) {
+        sibling = sibling.previousElementSibling;
+      }
+      if (sibling) {
+        selectedNode.classList.remove("highlight");
+        selectedNode = sibling;
+        selectedNode.classList.add("highlight");
+      }
+    }
+
+    function addChild() {
+      if (!selectedNode) return;
+      if (selectedNode.classList.contains("grandparent")) {
+        const newParent = document.createElement("div");
+        newParent.className = "node parent";
+        newParent.textContent = `Parent ${document.querySelectorAll('.parent').length + 1}`;
+
+        for (let i = 1; i <= 2; i++) {
+          const child = document.createElement("div");
+          child.className = "node child";
+          child.textContent = `Child ${document.querySelectorAll('.child').length + 1}`;
+          newParent.appendChild(child);
+        }
+
+        selectedNode.appendChild(newParent);
+      } else if (selectedNode.classList.contains("parent")) {
+        const newChild = document.createElement("div");
+        newChild.className = "node child";
+        newChild.textContent = `Child ${document.querySelectorAll('.child').length + 1}`;
+        selectedNode.appendChild(newChild);
+      } else {
+        alert("Cannot add a child to a child node.");
+      }
+    }
+
+    function deleteNode() {
+      if (!selectedNode) return;
+      if (selectedNode.classList.contains("grandparent")) {
+        alert("Cannot delete the grandparent node.");
+        return;
+      }
+      const parent = selectedNode.parentElement.closest(".node");
+      selectedNode.remove();
+      selectedNode = null;
+      if (parent) {
+        selectedNode = parent;
+        selectedNode.classList.add("highlight");
+      }
+    }
+  </script>
+</body>
+</html>
